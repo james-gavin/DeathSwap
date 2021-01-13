@@ -1,2 +1,14 @@
+# Enables or disables portals during the game.
 portalsEnabled: false
-swapTime: 10
+
+# The time in seconds between each swap
+swapTime: 60
+
+# The time in seconds for the grace period
+gracePeriod: 60
+
+# The chance during a swap the teleportation will be canceled
+cancelSwapChance: 0
+
+# The time the game should start warning players a swap will take place soon.
+swapWarningTime: 10

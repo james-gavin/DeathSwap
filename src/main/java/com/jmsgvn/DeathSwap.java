@@ -1,9 +1,7 @@
 package com.jmsgvn;
 
 import co.aikar.commands.BukkitCommandManager;
-import com.jmsgvn.commands.EndCommand;
-import com.jmsgvn.commands.StartCommand;
-import com.jmsgvn.commands.TeleportCommand;
+import com.jmsgvn.commands.*;
 import com.jmsgvn.game.Game;
 import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -19,8 +17,6 @@ public class DeathSwap extends JavaPlugin {
     public void onEnable() {
         instance = this;
 
-        this.getServer().getConsoleSender().sendMessage("Death Swap loaded...");
-
         this.saveDefaultConfig();
         this.game = new Game();
         this.getServer().getPluginManager().registerEvents(game, this);
@@ -29,5 +25,7 @@ public class DeathSwap extends JavaPlugin {
         manager.registerCommand(new StartCommand());
         manager.registerCommand(new TeleportCommand());
         manager.registerCommand(new EndCommand());
+        manager.registerCommand(new ReloadConfig());
+        manager.registerCommand(new InformationCommand());
     }
 }

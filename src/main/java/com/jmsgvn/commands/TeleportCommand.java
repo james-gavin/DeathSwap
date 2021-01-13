@@ -15,9 +15,9 @@ public class TeleportCommand extends BaseCommand {
     public void teleport(Player player, OnlinePlayer target) {
         if (player.isOp() || player.getGameMode().equals(GameMode.SPECTATOR)) {
             player.teleport(target.getPlayer().getLocation());
-            player.sendMessage(ChatColor.GREEN + "Teleported to " + target.getPlayer().getName() + ".");
+            player.sendMessage(ChatColor.GOLD + "DeathSwap> " +ChatColor.YELLOW + "Teleported to " + target.getPlayer().getName() + ".");
         } else {
-            player.sendMessage(ChatColor.RED + "This command can only be used whilst a spectator.");
+            player.sendMessage(ChatColor.GOLD + "DeathSwap> " +ChatColor.RED + "This command can only be used whilst a spectator.");
         }
     }
 }
