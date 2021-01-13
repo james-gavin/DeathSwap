@@ -138,11 +138,14 @@ public class Game implements Listener {
                         Map<Integer, Location> locations = new HashMap<>();
                         Map<Integer, Player> players = new HashMap<>();
 
+                        int count = 0;
+
                         for (int i = 0; i < Bukkit.getOnlinePlayers().size(); i ++) {
                             Player player = (Player) Bukkit.getOnlinePlayers().toArray()[i];
                             if (!player.getGameMode().equals(GameMode.SPECTATOR)) {
-                                players.put(i, player);
-                                locations.put(i, player.getLocation());
+                                players.put(count, player);
+                                locations.put(count, player.getLocation());
+                                count++;
                             }
                         }
 
@@ -157,6 +160,8 @@ public class Game implements Listener {
                             player.setFallDistance(0);
                         }
 
+                        locations.clear();
+                        players.clear();
                     }
                 }
                 break;
