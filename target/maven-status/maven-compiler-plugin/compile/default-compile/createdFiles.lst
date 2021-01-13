@@ -1,0 +1,6 @@
+com\jmsgvn\game\GamePhase.class
+com\jmsgvn\commands\TeleportCommand.class
+com\jmsgvn\DeathSwap.class
+com\jmsgvn\commands\StartCommand.class
+com\jmsgvn\game\Game.class
+com\jmsgvn\game\Game$1.class
