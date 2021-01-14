@@ -28,6 +28,6 @@ public class DeathSwap extends JavaPlugin {
         manager.registerCommand(new ReloadConfig());
         manager.registerCommand(new InformationCommand());
 
-        Metrics metrics = new Metrics(this, 9998);
+        MetricsLite metrics = new MetricsLite(this, 9998);
     }
 }
