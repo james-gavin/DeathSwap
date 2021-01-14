@@ -1,8 +1,9 @@
-D:\Development\DeathSwap\src\main\java\com\jmsgvn\commands\EndCommand.java
-D:\Development\DeathSwap\src\main\java\com\jmsgvn\commands\ReloadConfig.java
-D:\Development\DeathSwap\src\main\java\com\jmsgvn\commands\TeleportCommand.java
-D:\Development\DeathSwap\src\main\java\com\jmsgvn\DeathSwap.java
-D:\Development\DeathSwap\src\main\java\com\jmsgvn\commands\StartCommand.java
-D:\Development\DeathSwap\src\main\java\com\jmsgvn\game\Game.java
-D:\Development\DeathSwap\src\main\java\com\jmsgvn\commands\InformationCommand.java
-D:\Development\DeathSwap\src\main\java\com\jmsgvn\game\GamePhase.java
+/Users/james/IdeaProjects/DeathSwap/src/main/java/com/jmsgvn/game/Game.java
+/Users/james/IdeaProjects/DeathSwap/src/main/java/com/jmsgvn/commands/ReloadConfig.java
+/Users/james/IdeaProjects/DeathSwap/src/main/java/com/jmsgvn/commands/InformationCommand.java
+/Users/james/IdeaProjects/DeathSwap/src/main/java/com/jmsgvn/game/GamePhase.java
+/Users/james/IdeaProjects/DeathSwap/src/main/java/com/jmsgvn/commands/StartCommand.java
+/Users/james/IdeaProjects/DeathSwap/src/main/java/com/jmsgvn/DeathSwap.java
+/Users/james/IdeaProjects/DeathSwap/src/main/java/com/jmsgvn/Metrics.java
+/Users/james/IdeaProjects/DeathSwap/src/main/java/com/jmsgvn/commands/TeleportCommand.java
+/Users/james/IdeaProjects/DeathSwap/src/main/java/com/jmsgvn/commands/EndCommand.java
