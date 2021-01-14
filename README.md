@@ -10,3 +10,7 @@ DeathSwap is a simple plugin where players try to kill their opponents when the 
 
 # Notice
 This game is in beta. There may be untested bugs.
+
+# Addons
+- Something for spectators to do
+- Reset achievements

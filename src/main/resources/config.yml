@@ -4,11 +4,34 @@ portalsEnabled: false
 # The time in seconds between each swap
 swapTime: 60
 
-# The time in seconds for the grace period
-gracePeriod: 60
+# If enabled the swap time will happen between the minSwapTime and maxSwapTime.
+# The swapTime listed above will no longer be taken into consideration.
+enableMinMaxSwap: false
+
+# Minimum time to wait before a swap
+minSwapTime: 60
+
+# Maximum time to wait before a swap
+maxSwapTime: 400
 
 # The chance during a swap the teleportation will be canceled
 cancelSwapChance: 0
 
 # The time the game should start warning players a swap will take place soon.
 swapWarningTime: 10
+
+# The time in seconds for the grace period
+gracePeriod: 60
+
+# If enabled a scoreboard will appear in the right hand corner displaying the time left before a swap
+# Note if enabled it can not be disabled for the entire game. If you want to disable it again wait for
+# the game to be over, change it to false and then reload the configuration file (/ds rl). The scoreboard
+# should then disappear once the next game starts. Note: If you do disable is during a game and reload
+# the configuration file the scoreboard will stay there but will not countdown anymore.
+displayTimeLeft: false
+
+# If enabled warning messages will appear during a game if a player attempts to cheat during a live game.
+# The messages will not be shown if the game is not running
+antiCheat: true
+
+

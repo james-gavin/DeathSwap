@@ -25,7 +25,7 @@ public class StartCommand extends BaseCommand {
             return;
         }
 
-        player.sendMessage(ChatColor.GOLD + "DeathSwap> " +ChatColor.GREEN + "Starting game now!");
+        player.sendMessage(ChatColor.GOLD + "DeathSwap> " +ChatColor.YELLOW + "Starting game now!");
         DeathSwap.getInstance().getGame().setPhase(GamePhase.GRACE);
     }
 }

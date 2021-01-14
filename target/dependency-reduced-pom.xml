@@ -46,6 +46,10 @@
               <pattern>co.aikar.locales</pattern>
               <shadedPattern>com.jmsgvn.locales</shadedPattern>
             </relocation>
+            <relocation>
+              <pattern>fr.mrmicky.fastboard</pattern>
+              <shadedPattern>com.jmsgvn.fastboard</shadedPattern>
+            </relocation>
           </relocations>
         </configuration>
       </plugin>
@@ -83,6 +87,10 @@
     <repository>
       <id>aikar</id>
       <url>https://repo.aikar.co/content/groups/aikar/</url>
+    </repository>
+    <repository>
+      <id>jitpack.io</id>
+      <url>https://jitpack.io</url>
     </repository>
   </repositories>
   <dependencies>

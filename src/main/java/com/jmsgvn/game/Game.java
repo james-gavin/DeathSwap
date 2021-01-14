@@ -1,6 +1,7 @@
 package com.jmsgvn.game;
 
 import com.jmsgvn.DeathSwap;
+import fr.mrmicky.fastboard.FastBoard;
 import lombok.Getter;
 import org.bukkit.*;
 import org.bukkit.entity.EntityType;
@@ -27,6 +28,8 @@ public class Game implements Listener {
 
     private Player winner;
 
+    private final Map<UUID, FastBoard> boards = new HashMap<>();
+
     public Game() {
         DeathSwap.getInstance().getServer().getConsoleSender().sendMessage("Game starting");
         Bukkit.getScheduler().runTaskTimer(DeathSwap.getInstance(), this::run, 0L, 20L);
@@ -36,6 +39,11 @@ public class Game implements Listener {
     public void setPhase(GamePhase phase) {
         switch (phase) {
             case LOBBY:
+                boards.forEach((uuid, fastBoard) -> {
+                    fastBoard.delete();
+                });
+                boards.clear();
+
                 Bukkit.getOnlinePlayers().forEach(player -> {
                     player.getInventory().clear();
                     player.setHealth(20);
@@ -44,6 +52,9 @@ public class Game implements Listener {
                     player.setExp(0);
                     player.setGameMode(GameMode.ADVENTURE);
                     player.teleport(player.getWorld().getSpawnLocation());
+                    player.getActivePotionEffects().forEach(potionEffect -> {
+                        player.removePotionEffect(potionEffect.getType());
+                    });
                 });
                 sendMessage("");
                 sendMessage("&eThe game ended. You have been teleported to the lobby.");
@@ -70,19 +81,45 @@ public class Game implements Listener {
                     player.setFoodLevel(20);
                     player.setLevel(0);
                     player.setExp(0);
+                    player.getActivePotionEffects().forEach(potionEffect -> {
+                        player.removePotionEffect(potionEffect.getType());
+                    });
                     player.setGameMode(GameMode.SURVIVAL);
+
+                    if (DeathSwap.getInstance().getConfig().getBoolean("displayTimeLeft")) {
+                        boards.put(player.getUniqueId(), new FastBoard(player));
+                        FastBoard fastBoard = boards.get(player.getUniqueId());
+                        fastBoard.updateTitle(ChatColor.GOLD + "DeathSwap");
+                        fastBoard.updateLines(
+                                "",
+                                ChatColor.YELLOW + "Time Left: " + ChatColor.GOLD + countdown + "s",
+                                "");
+                    } else {
+                        FastBoard board = boards.remove(player.getUniqueId());
+
+                        if (board != null) {
+                            board.delete();
+                        }
+                    }
                 });
 
                 sendMessage("");
                 sendMessage("&eGrace period has begun!");
                 sendMessage("&eType /info for game settings");
                 sendMessage("");
+
                 break;
             case RUNNING:
-                this.countdown = DeathSwap.getInstance().getConfig().getInt("swapTime");;
+                setCountDown();
                 sendMessage("");
                 sendMessage("&eThe game has begun!");
-                sendMessage("&eThe first swap will happen in &6" + countdown + " seconds&e.");
+
+                if (!DeathSwap.getInstance().getConfig().getBoolean("enableMinMaxSwap")) {
+                    sendMessage("&eThe first swap will happen in &6" + countdown + " seconds&e.");
+                } else {
+                    sendMessage("&eThe swap time has randomly been chosen.");
+                }
+
                 sendMessage("");
                 playSound(Sound.ENTITY_PLAYER_LEVELUP);
                 break;
@@ -103,7 +140,31 @@ public class Game implements Listener {
         this.phase = phase;
     }
 
+    private void setCountDown() {
+        if (DeathSwap.getInstance().getConfig().getBoolean("enableMinMaxSwap")) {
+            Random r = new Random();
+
+            int low = DeathSwap.getInstance().getConfig().getInt("minSwapTime");
+            int high = DeathSwap.getInstance().getConfig().getInt("maxSwapTime");;
+
+            countdown = r.nextInt(high-low) + low;
+        } else {
+            countdown = DeathSwap.getInstance().getConfig().getInt("swapTime");;
+        }
+    }
+
     public void run() {
+
+        if (DeathSwap.getInstance().getConfig().getBoolean("displayTimeLeft")) {
+            boards.forEach((uuid, fastBoard) -> {
+                fastBoard.updateTitle(ChatColor.GOLD + "DeathSwap");
+                fastBoard.updateLines(
+                        "",
+                        ChatColor.YELLOW + "Time Left: " + ChatColor.GOLD + countdown + "s",
+                        "");
+            });
+        }
+
         switch (phase) {
             case LOBBY:
                 break;
@@ -128,7 +189,8 @@ public class Game implements Listener {
                     }
                     countdown--;
                 } else {
-                    countdown = DeathSwap.getInstance().getConfig().getInt("swapTime");;
+
+                    setCountDown();
 
                     Random r = new Random();
 
@@ -215,6 +277,7 @@ public class Game implements Listener {
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         event.setJoinMessage(ChatColor.GOLD + "DeathSwap> " + player.getName() + ChatColor.YELLOW + " has joined.");
+
         switch (phase) {
             case LOBBY:
                 player.sendMessage(ChatColor.GOLD + "DeathSwap> " +ChatColor.YELLOW + "Please wait for the next game to start...");
@@ -225,6 +288,9 @@ public class Game implements Listener {
                 player.setExp(0);
                 player.setGameMode(GameMode.ADVENTURE);
                 player.teleport(player.getWorld().getSpawnLocation());
+                player.getActivePotionEffects().forEach(potionEffect -> {
+                    player.removePotionEffect(potionEffect.getType());
+                });
                 break;
             case GRACE:
                 player.sendMessage(ChatColor.GOLD + "DeathSwap> " +ChatColor.YELLOW + "You joined during the grace period but will still be allowed to play.");
@@ -234,6 +300,9 @@ public class Game implements Listener {
                 player.setFoodLevel(20);
                 player.setLevel(0);
                 player.setExp(0);
+                player.getActivePotionEffects().forEach(potionEffect -> {
+                    player.removePotionEffect(potionEffect.getType());
+                });
                 break;
             case RUNNING:
                 player.sendMessage(ChatColor.GOLD + "DeathSwap> " + ChatColor.RED + "You joined during a game. You are now a spectator.");
@@ -253,7 +322,6 @@ public class Game implements Listener {
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onDeath(PlayerDeathEvent event) {
         Player player = event.getEntity();
-        event.setDeathMessage(null);
         switch (phase) {
             case LOBBY:
             case END:
@@ -265,7 +333,7 @@ public class Game implements Listener {
                 player.setHealth(20);
                 player.setGameMode(GameMode.SPECTATOR);
 
-                sendMessage("&6DeathSwap> " + player.getName() + "&e died.");
+                sendMessage("&6DeathSwap> " + player.getName() + "&e died. &6(" + event.getDeathMessage() + ")");
                 playSound(Sound.ENTITY_LIGHTNING_BOLT_IMPACT);
                 player.sendMessage(ChatColor.GOLD + "DeathSwap> " + ChatColor.YELLOW + "Spectate others by typing /tp <player>");
 
@@ -274,12 +342,21 @@ public class Game implements Listener {
                 }
                 break;
         }
+        event.setDeathMessage(null);
     }
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
         event.setQuitMessage(ChatColor.GOLD + "DeathSwap> " + player.getName() + ChatColor.YELLOW + " has left.");
+
+        player.setGameMode(GameMode.SPECTATOR);
+
+        FastBoard board = boards.remove(player.getUniqueId());
+
+        if (board != null) {
+            board.delete();
+        }
 
         switch (phase) {
             case RUNNING:
@@ -336,20 +413,6 @@ public class Game implements Listener {
     }
 
     @EventHandler
-    public void modeChange(PlayerGameModeChangeEvent event) {
-        Player player = event.getPlayer();
-        if (!event.getNewGameMode().equals(GameMode.SPECTATOR)) {
-            switch (phase) {
-                case GRACE:
-                case RUNNING:
-                    sendMessage("");
-                    sendMessage("&c&lWARNING &c" + player.getName() + " has changed their gamemode to " + event.getNewGameMode().name() + "!");
-                    sendMessage("");
-            }
-        }
-    }
-
-    @EventHandler
     public void chatEvent(AsyncPlayerChatEvent event) {
         Player player = event.getPlayer();
         if (player.getGameMode().equals(GameMode.SPECTATOR)) {
@@ -370,10 +433,12 @@ public class Game implements Listener {
             case GRACE:
             case RUNNING:
                 if (player.isOp()) {
-                    sendMessage("");
-                    sendMessage("&c&lWARNING &c" + player.getName() + " executed a command while opped!");
-                    sendMessage("&cCommand: " + event.getMessage());
-                    sendMessage("");
+                    if (DeathSwap.getInstance().getConfig().getBoolean("antiCheat")) {
+                        sendMessage("");
+                        sendMessage("&c&lWARNING &c" + player.getName() + " executed a command while opped!");
+                        sendMessage("&cCommand: " + event.getMessage());
+                        sendMessage("");
+                    }
                 }
         }
     }
@@ -383,10 +448,12 @@ public class Game implements Listener {
         switch (phase) {
             case GRACE:
             case RUNNING:
-                sendMessage("");
-                sendMessage("&c&lWARNING &cThe console has executed a command during the game!");
-                sendMessage("&cCommand: /" + event.getCommand());
-                sendMessage("");
+                if (DeathSwap.getInstance().getConfig().getBoolean("antiCheat")) {
+                    sendMessage("");
+                    sendMessage("&c&lWARNING &cThe console has executed a command during the game!");
+                    sendMessage("&cCommand: /" + event.getCommand());
+                    sendMessage("");
+                }
         }
     }
 

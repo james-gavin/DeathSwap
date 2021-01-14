@@ -13,7 +13,7 @@ public class EndCommand extends BaseCommand {
     @CommandAlias("end")
     @CommandPermission("op")
     public void endGame(CommandSender player) {
-        if(DeathSwap.getInstance().getGame().getPhase().equals(GamePhase.LOBBY)) {
+        if(DeathSwap.getInstance().getGame().getPhase().equals(GamePhase.LOBBY) || DeathSwap.getInstance().getGame().getPhase().equals(GamePhase.END)) {
             player.sendMessage(ChatColor.GOLD + "DeathSwap> " +ChatColor.RED + "There are no active games.");
             return;
         }
