@@ -46,7 +46,7 @@ public class Game implements Listener {
                     player.teleport(player.getWorld().getSpawnLocation());
                 });
                 sendMessage("");
-                sendMessage("&aThe game is over. You have been teleported to the lobby.");
+                sendMessage("&eThe game ended. You have been teleported to the lobby.");
                 sendMessage("");
 
                 playSound(Sound.BLOCK_NOTE_BLOCK_CHIME);
@@ -64,18 +64,25 @@ public class Game implements Listener {
                     int randomZ = r.nextInt(high-low) + low;
 
                     player.teleport(player.getWorld().getHighestBlockAt(randomX, randomZ).getLocation().add(0,20,0));
+
+                    player.getInventory().clear();
+                    player.setHealth(20);
+                    player.setFoodLevel(20);
+                    player.setLevel(0);
+                    player.setExp(0);
+                    player.setGameMode(GameMode.SURVIVAL);
                 });
 
                 sendMessage("");
-                sendMessage("&aGrace period has begun!");
-                sendMessage("&aType /info for game settings");
+                sendMessage("&eGrace period has begun!");
+                sendMessage("&eType /info for game settings");
                 sendMessage("");
                 break;
             case RUNNING:
                 this.countdown = DeathSwap.getInstance().getConfig().getInt("swapTime");;
                 sendMessage("");
-                sendMessage("&aThe game has begun!");
-                sendMessage("&aThe first swap will happen in " + countdown + " seconds.");
+                sendMessage("&eThe game has begun!");
+                sendMessage("&eThe first swap will happen in &6" + countdown + " seconds&e.");
                 sendMessage("");
                 playSound(Sound.ENTITY_PLAYER_LEVELUP);
                 break;
@@ -103,9 +110,9 @@ public class Game implements Listener {
             case GRACE:
                 if (countdown != 0) {
                     if (countdown == 30) {
-                        sendMessage("&6DeathSwap> &eGame starting in &6" + countdown + " seconds&e.");
+                        sendMessage("&6DeathSwap> &eGrace period ending in &6" + countdown + " seconds&e.");
                     } else if (countdown <= 15) {
-                        sendMessage("&6DeathSwap> &eGame starting in &6" + countdown + " seconds&e.");
+                        sendMessage("&6DeathSwap> &eGrace period ending in &6" + countdown + " seconds&e.");
                         playSound(Sound.BLOCK_STONE_BUTTON_CLICK_ON);
                     }
                 } else {
@@ -126,7 +133,7 @@ public class Game implements Listener {
                     Random r = new Random();
 
                     sendMessage("");
-                    sendMessage("&aSwapping!");
+                    sendMessage("&6Swapping!");
                     sendMessage("");
 
                     playSound(Sound.BLOCK_NOTE_BLOCK_CHIME);
@@ -206,8 +213,8 @@ public class Game implements Listener {
 
     @EventHandler(priority = EventPriority.LOW)
     public void onJoin(PlayerJoinEvent event) {
-        event.setJoinMessage(null);
         Player player = event.getPlayer();
+        event.setJoinMessage(ChatColor.GOLD + "DeathSwap> " + player.getName() + ChatColor.YELLOW + " has joined.");
         switch (phase) {
             case LOBBY:
                 player.sendMessage(ChatColor.GOLD + "DeathSwap> " +ChatColor.YELLOW + "Please wait for the next game to start...");
@@ -217,6 +224,7 @@ public class Game implements Listener {
                 player.setLevel(0);
                 player.setExp(0);
                 player.setGameMode(GameMode.ADVENTURE);
+                player.teleport(player.getWorld().getSpawnLocation());
                 break;
             case GRACE:
                 player.sendMessage(ChatColor.GOLD + "DeathSwap> " +ChatColor.YELLOW + "You joined during the grace period but will still be allowed to play.");
@@ -231,11 +239,13 @@ public class Game implements Listener {
                 player.sendMessage(ChatColor.GOLD + "DeathSwap> " + ChatColor.RED + "You joined during a game. You are now a spectator.");
                 player.sendMessage(ChatColor.GOLD + "DeathSwap> " + ChatColor.YELLOW + "Spectate others by typing /tp <player>");
                 player.setGameMode(GameMode.SPECTATOR);
+                player.teleport(player.getWorld().getSpawnLocation());
                 break;
             case END:
                 player.sendMessage(ChatColor.GOLD + "DeathSwap> " + ChatColor.YELLOW + "You joined during the end of a game. Please wait for a new game to start.");
                 player.sendMessage(ChatColor.GOLD + "DeathSwap> " + ChatColor.YELLOW + "Spectate others by typing /tp <player>");
                 player.setGameMode(GameMode.SPECTATOR);
+                player.teleport(player.getWorld().getSpawnLocation());
                 break;
         }
     }
@@ -269,7 +279,7 @@ public class Game implements Listener {
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
-        event.setQuitMessage(null);
+        event.setQuitMessage(ChatColor.GOLD + "DeathSwap> " + player.getName() + ChatColor.YELLOW + " has left.");
 
         switch (phase) {
             case RUNNING:
