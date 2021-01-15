@@ -42,19 +42,13 @@ public class Game implements Listener {
                 boards.forEach((uuid, fastBoard) -> {
                     fastBoard.delete();
                 });
+
                 boards.clear();
 
                 Bukkit.getOnlinePlayers().forEach(player -> {
-                    player.getInventory().clear();
-                    player.setHealth(20);
-                    player.setFoodLevel(20);
-                    player.setLevel(0);
-                    player.setExp(0);
+                    resetPlayer(player);
                     player.setGameMode(GameMode.ADVENTURE);
                     player.teleport(player.getWorld().getSpawnLocation());
-                    player.getActivePotionEffects().forEach(potionEffect -> {
-                        player.removePotionEffect(potionEffect.getType());
-                    });
                 });
                 sendMessage("");
                 sendMessage("&eThe game ended. You have been teleported to the lobby.");
@@ -76,14 +70,8 @@ public class Game implements Listener {
 
                     player.teleport(player.getWorld().getHighestBlockAt(randomX, randomZ).getLocation().add(0,20,0));
 
-                    player.getInventory().clear();
-                    player.setHealth(20);
-                    player.setFoodLevel(20);
-                    player.setLevel(0);
-                    player.setExp(0);
-                    player.getActivePotionEffects().forEach(potionEffect -> {
-                        player.removePotionEffect(potionEffect.getType());
-                    });
+                    resetPlayer(player);
+
                     player.setGameMode(GameMode.SURVIVAL);
 
                     if (DeathSwap.getInstance().getConfig().getBoolean("displayTimeLeft")) {
@@ -273,6 +261,17 @@ public class Game implements Listener {
         Bukkit.getScheduler().runTaskLater(DeathSwap.getInstance(), firework::detonate, detonateTime);
     }
 
+    public void resetPlayer(Player player) {
+        player.getInventory().clear();
+        player.setHealth(20);
+        player.setFoodLevel(20);
+        player.setLevel(0);
+        player.setExp(0);
+        player.getActivePotionEffects().forEach(potionEffect -> {
+            player.removePotionEffect(potionEffect.getType());
+        });
+    }
+
     @EventHandler(priority = EventPriority.LOW)
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
@@ -281,42 +280,26 @@ public class Game implements Listener {
         switch (phase) {
             case LOBBY:
                 player.sendMessage(ChatColor.GOLD + "DeathSwap> " +ChatColor.YELLOW + "Please wait for the next game to start...");
-                player.getInventory().clear();
-                player.setHealth(20);
-                player.setFoodLevel(20);
-                player.setLevel(0);
-                player.setExp(0);
                 player.setGameMode(GameMode.ADVENTURE);
-                player.teleport(player.getWorld().getSpawnLocation());
-                player.getActivePotionEffects().forEach(potionEffect -> {
-                    player.removePotionEffect(potionEffect.getType());
-                });
                 break;
             case GRACE:
                 player.sendMessage(ChatColor.GOLD + "DeathSwap> " +ChatColor.YELLOW + "You joined during the grace period but will still be allowed to play.");
                 player.setGameMode(GameMode.SURVIVAL);
-                player.getInventory().clear();
-                player.setHealth(20);
-                player.setFoodLevel(20);
-                player.setLevel(0);
-                player.setExp(0);
-                player.getActivePotionEffects().forEach(potionEffect -> {
-                    player.removePotionEffect(potionEffect.getType());
-                });
                 break;
             case RUNNING:
                 player.sendMessage(ChatColor.GOLD + "DeathSwap> " + ChatColor.RED + "You joined during a game. You are now a spectator.");
                 player.sendMessage(ChatColor.GOLD + "DeathSwap> " + ChatColor.YELLOW + "Spectate others by typing /tp <player>");
                 player.setGameMode(GameMode.SPECTATOR);
-                player.teleport(player.getWorld().getSpawnLocation());
                 break;
             case END:
                 player.sendMessage(ChatColor.GOLD + "DeathSwap> " + ChatColor.YELLOW + "You joined during the end of a game. Please wait for a new game to start.");
                 player.sendMessage(ChatColor.GOLD + "DeathSwap> " + ChatColor.YELLOW + "Spectate others by typing /tp <player>");
                 player.setGameMode(GameMode.SPECTATOR);
-                player.teleport(player.getWorld().getSpawnLocation());
                 break;
         }
+
+        player.teleport(player.getWorld().getSpawnLocation());
+        resetPlayer(player);
     }
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
@@ -335,6 +318,7 @@ public class Game implements Listener {
 
                 sendMessage("&6DeathSwap> " + player.getName() + "&e died. &6(" + event.getDeathMessage() + ")");
                 playSound(Sound.ENTITY_LIGHTNING_BOLT_IMPACT);
+                player.getWorld().strikeLightningEffect(player.getLocation());
                 player.sendMessage(ChatColor.GOLD + "DeathSwap> " + ChatColor.YELLOW + "Spectate others by typing /tp <player>");
 
                 if (getPlayersLeft() == 1) {
